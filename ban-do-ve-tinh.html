@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bản đồ vệ tinh & Polygon 15 lô — Demo App Quản lý Nông nghiệp</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  html,body{margin:0;height:100%;font-family:Arial,Helvetica,sans-serif}
+  #bar{background:#14532d;color:#fff;padding:10px 14px}
+  #bar h1{font-size:17px;margin:0 0 4px}
+  #bar p{margin:0;font-size:13px;opacity:.92}
+  #bar a{color:#bbf7d0}
+  #legend{background:#fff;padding:8px 14px;font-size:13px;display:flex;gap:16px;flex-wrap:wrap;border-bottom:1px solid #ddd}
+  .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  #map{height:calc(100% - 118px)}
+  .pop b{font-size:14px}
+  .pop{font-size:13px;line-height:1.5}
+</style></head><body>
+<div id="bar">
+  <h1>🛰️ Bản đồ vệ tinh & Polygon lô đất — Trang trại cỏ & ngô 500 ha</h1>
+  <p>Tổng 500 ha · 12 vùng · 15 lô (ngô 219 ha — cỏ 281 ha) · Bấm vào từng polygon để xem thông tin lô ·
+  <a href="https://hanglex9x-cmyk.github.io/demo-quan-ly-nong-nghiep/">← Quay lại demo chính</a></p>
+</div>
+<div id="legend">
+  <span><span class="sw" style="background:#22c55e"></span>Đang canh tác</span>
+  <span><span class="sw" style="background:#f59e0b"></span>Sắp thu hoạch / lứa cắt</span>
+  <span><span class="sw" style="background:#ef4444"></span>Cảnh báo</span>
+  <span style="color:#666">Lưu ý: vị trí polygon là MINH HỌA — bản chính thức import polygon đúng vị trí thật từ file bản đồ của đơn vị.</span>
+</div>
+<div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var FEATURES = [{"ma": "NG-01", "vung": 1, "cay": "Ngô sinh khối", "ha": 42, "tt": "sap", "tt_label": "Sắp thu hoạch / lứa cắt", "color": "#f59e0b", "note": "Vụ ngô — sắp thu hoạch ủ chua", "staff": "Hùng — Vùng 1–4", "coords": [[11.271039, 107.408332], [11.271197, 107.41477], [11.265797, 107.414969], [11.26564, 107.408133], [11.271039, 107.408332]]}, {"ma": "CO-01", "vung": 2, "cay": "Cỏ chăn nuôi", "ha": 38, "tt": "tot", "tt_label": "Đang canh tác", "color": "#22c55e", "note": "Cỏ — đang theo lứa cắt", "staff": "Hùng — Vùng 1–4", "coords": [[11.270749, 107.416449], [11.270889, 107.422999], [11.266087, 107.423201], [11.265947, 107.416247], [11.270749, 107.416449]]}, {"ma": "NG-02", "vung": 3, "cay": "Ngô sinh khối", "ha": 35, "tt": "tot", "tt_label": "Đang canh tác", "color": "#22c55e", "note": "Vụ ngô — đang sinh trưởng", "staff": "Hùng — Vùng 1–4", "coords": [[11.270526, 107.424562], [11.270653, 107.431232], [11.26631, 107.431438], [11.266183, 107.424356], [11.270526, 107.424562]]}, {"ma": "CO-02", "vung": 3, "cay": "Cỏ chăn nuôi", "ha": 30, "tt": "tot", "tt_label": "Đang canh tác", "color": "#22c55e", "note": "Cỏ — đang theo lứa cắt", "staff": "Hùng — Vùng 1–4", "coords": [[11.270269, 107.432819], [11.27038, 107.439329], [11.266567, 107.439531], [11.266456, 107.432617], [11.270269, 107.432819]]}, {"ma": "CO-03", "vung": 4, "cay": "Cỏ chăn nuôi", "ha": 48, "tt": "sap", "tt_label": "Sắp thu hoạch / lứa cắt", "color": "#f59e0b", "note": "Cỏ — sắp tới lứa cắt", "staff": "Hùng — Vùng 1–4", "coords": [[11.27122, 107.440802], [11.271388, 107.447684], [11.265616, 107.447897], [11.265448, 107.440589], [11.27122, 107.440802]]}, {"ma": "NG-03", "vung": 5, "cay": "Ngô sinh khối", "ha": 44, "tt": "tot", "tt_label": "Đang canh tác", "color": "#22c55e", "note": "Vụ ngô — đã thu 1 đợt về hố ủ", "staff": "Đức — Vùng 5–8", "coords": [[11.264508, 107.408018], [11.264659, 107.415065], [11.259492, 107.415283], [11.259341, 107.4078], [11.264508, 107.408018]]}, {"ma": "CO-04", "vung": 6, "cay": "Cỏ chăn nuôi", "ha": 36, "tt": "tot", "tt_label": "Đang canh tác", "color": "#22c55e", "note": "Cỏ — đang theo lứa cắt", "staff": "Đức — Vùng 5–8", "coords": [[11.264138, 107.416339], [11.264267, 107.423103], [11.259862, 107.423312], [11.259733, 107.416129], [11.264138, 107.416339]]}, {"ma": "NG-04", "vung": 7, "cay": "Ngô sinh khối", "ha": 33, "tt": "do", "tt_label": "Cảnh báo", "color": "#ef4444", "note": "CẢNH BÁO: sâu keo mùa thu", "staff": "Đức — Vùng 5–8", "coords": [[11.263942, 107.42448], [11.264058, 107.431309], [11.260058, 107.43152], [11.259942, 107.424269], [11.263942, 107.42448]]}, {"ma": "CO-05", "vung": 7, "cay": "Cỏ chăn nuôi", "ha": 28, "tt": "tot", "tt_label": "Đang canh tác", "color": "#22c55e", "note": "Cỏ — đang theo lứa cắt", "staff": "Đức — Vùng 5–8", "coords": [[11.26414, 107.433465], [11.264269, 107.438722], [11.25986, 107.438884], [11.259731, 107.433303], [11.26414, 107.433465]]}, {"ma": "CO-06", "vung": 8, "cay": "Cỏ chăn nuôi", "ha": 31, "tt": "tot", "tt_label": "Đang canh tác", "color": "#22c55e", "note": "Cỏ — đang theo lứa cắt", "staff": "Đức — Vùng 5–8", "coords": [[11.264105, 107.4413], [11.264232, 107.447216], [11.259895, 107.447399], [11.259768, 107.441117], [11.264105, 107.4413]]}, {"ma": "NG-05", "vung": 9, "cay": "Ngô sinh khối", "ha": 40, "tt": "sap", "tt_label": "Sắp thu hoạch / lứa cắt", "color": "#f59e0b", "note": "Vụ ngô — sắp thu hoạch ủ chua", "staff": "Tuấn — Vùng 9–12", "coords": [[11.257836, 107.407975], [11.257971, 107.415105], [11.253328, 107.415326], [11.253193, 107.407755], [11.257836, 107.407975]]}, {"ma": "CO-07", "vung": 10, "cay": "Cỏ chăn nuôi", "ha": 27, "tt": "tot", "tt_label": "Đang canh tác", "color": "#22c55e", "note": "Cỏ — đang theo lứa cắt", "staff": "Tuấn — Vùng 9–12", "coords": [[11.257338, 107.416641], [11.257443, 107.422818], [11.253826, 107.423009], [11.25372, 107.41645], [11.257338, 107.416641]]}, {"ma": "NG-06", "vung": 11, "cay": "Ngô sinh khối", "ha": 25, "tt": "tot", "tt_label": "Đang canh tác", "color": "#22c55e", "note": "Vụ ngô — đang sinh trưởng", "staff": "Tuấn — Vùng 9–12", "coords": [[11.257604, 107.42544], [11.257725, 107.430407], [11.25356, 107.43056], [11.253438, 107.425286], [11.257604, 107.42544]]}, {"ma": "CO-08", "vung": 11, "cay": "Cỏ chăn nuôi", "ha": 22, "tt": "do", "tt_label": "Cảnh báo", "color": "#ef4444", "note": "CẢNH BÁO: quá ngày cắt 7 ngày", "staff": "Tuấn — Vùng 9–12", "coords": [[11.257355, 107.433606], [11.257462, 107.438589], [11.253808, 107.438744], [11.253702, 107.433452], [11.257355, 107.433606]]}, {"ma": "CO-09", "vung": 12, "cay": "Cỏ chăn nuôi", "ha": 21, "tt": "tot", "tt_label": "Đang canh tác", "color": "#22c55e", "note": "Cỏ Mombasa — đang theo lứa cắt", "staff": "Tuấn — Vùng 9–12", "coords": [[11.257215, 107.441687], [11.257313, 107.446853], [11.253949, 107.447013], [11.253851, 107.441527], [11.257215, 107.441687]]}];
+var map = L.map('map');
+var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom: 19, attribution: 'Ảnh vệ tinh: Esri World Imagery'});
+var street = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '© OpenStreetMap'});
+sat.addTo(map);
+L.control.layers({'🛰️ Vệ tinh': sat, '🗺️ Bản đồ thường': street}).addTo(map);
+var bounds = [];
+FEATURES.forEach(function(f, idx){
+  var poly = L.polygon(f.coords, {color:'#ffffff', weight:2, fillColor:f.color, fillOpacity:0.55}).addTo(map);
+  bounds = bounds.concat(f.coords);
+  poly.bindTooltip(f.ma, {permanent:true, direction:'center', className:'lbl'});
+  poly.bindPopup('<div class="pop"><b>Lô ' + f.ma + ' — ' + f.cay + '</b><br>' +
+    'Vùng: ' + f.vung + ' · Diện tích: <b>' + f.ha.toFixed(1).replace('.', ',') + ' ha</b><br>' +
+    'Trạng thái: ' + f.tt_label + '<br>Người phụ trách: ' + f.staff + '<br>' + f.note + '</div>');
+});
+map.fitBounds(bounds);
+</script>
+<style>.lbl{background:rgba(0,0,0,.55);color:#fff;border:none;box-shadow:none;font-weight:bold;font-size:12px}.lbl:before{display:none}</style>
+</body></html>
